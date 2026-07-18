@@ -78,7 +78,6 @@ def parse_with_claude(text: str, bank: str, claude_client) -> list[dict]:
         ]
     )
 
-    # Debug: print raw response
     raw = message.content[0].text
 
     try:
