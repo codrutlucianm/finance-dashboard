@@ -1,13 +1,11 @@
-import io
 import json
 import os
 
 import anthropic
-import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pdf_parser import parse_transactions_from_pdf
+from pdf_parser import parse_transactions_from_pdf, parse_csv_transactions
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,11 +28,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-# Helper: parse CSV file into list of transactions
-def parse_csv_transactions(contents: bytes) -> list[dict]:
-    df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
-    return df.to_dict(orient="records")
 
 # Health check endpoint: used to verify the API is running
 @app.get("/health")

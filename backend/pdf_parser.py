@@ -1,7 +1,13 @@
 import re
 import json
 import fitz  # PyMuPDF
+import io
+import pandas as pd
 
+# Helper: parse CSV file into list of transactions
+def parse_csv_transactions(contents: bytes) -> list[dict]:
+    df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+    return df.to_dict(orient="records")
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     """Extract raw text from all pages of a PDF file."""
