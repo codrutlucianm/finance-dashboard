@@ -1,5 +1,4 @@
-import pytest
-from pdf_parser import detect_bank, parse_csv_transactions, extract_text_from_pdf
+from pdf_parser import detect_bank, parse_csv_transactions
 
 
 class TestDetectBank:
