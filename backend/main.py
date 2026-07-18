@@ -31,58 +31,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Helper: parse CSV file into list of transactions
+def parse_csv_transactions(contents: bytes) -> list[dict]:
+    df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+    return df.to_dict(orient="records")
+
 # Health check endpoint: used to verify the API is running
 @app.get("/health")
 def health_check():
     return {"status": "ok", "message": "Finance Dashboard API is running"}
-
-# CSV upload endpoint: receives a CSV file and returns parsed transactions
-@app.post("/upload")
-async def upload_csv(file: UploadFile = File(...)):
-    # Validate that the uploaded file is a CSV
-    if not file.filename.endswith(".csv"):
-        raise HTTPException(status_code=400, detail="Only CSV files are accepted")
-
-    # Read the file content
-    contents = await file.read()
-
-    # Parse CSV into a pandas DataFrame
-    try:
-        df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Could not parse CSV: {str(e)}")
-
-    # Return basic info about the uploaded file
-    return {
-        "filename": file.filename,
-        "rows": len(df),
-        "columns": list(df.columns),
-        "preview": df.head(5).to_dict(orient="records")
-    }
-
-# PDF upload endpoint: receives a PDF bank statement and returns parsed transactions
-@app.post("/upload-pdf")
-async def upload_pdf(file: UploadFile = File(...)):
-    # Validate that the uploaded file is a PDF
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
-
-    # Read the file content
-    contents = await file.read()
-
-    # Parse transactions from PDF
-    try:
-        result = parse_transactions_from_pdf(contents, claude)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not parse PDF: {str(e)}")
-
-    return {
-        "filename": file.filename,
-        "bank": result["bank"],
-        "parser_used": result["parser_used"],
-        "rows": len(result["transactions"]),
-        "transactions": result["transactions"]
-    }
     
 # Categorization endpoint: uses Claude to categorize a list of transactions
 @app.post("/categorize")
@@ -126,40 +83,51 @@ async def categorize_transactions(transactions: list[dict]):
             transaction["category"] = categories[i].get("category", "Other")
 
     return {"categorized_transactions": transactions}
-    
-# Combined endpoint: upload PDF, parse transactions, and auto-categorize with Claude
-@app.post("/upload-pdf-categorize")
-async def upload_pdf_categorized(file: UploadFile = File(...)):
-    # Validate that the uploaded file is a PDF
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
-    
-    # Read the file content
+
+# Smart upload endpoint: auto-detects CSV or PDF, parses and categorizes transactions
+@app.post("/upload")
+async def smart_upload(file: UploadFile = File(...)):
+    filename = file.filename.lower()
+
+    # Validate file type
+    if not filename.endswith(".csv") and not filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only CSV or PDF files are accepted")
+
     contents = await file.read()
-    
-    # 1) Parse transactions from PDF
-    try:
-        result = parse_transactions_from_pdf(contents, claude)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Could not parse PDF: {str(e)}")
-    
-    transactions = result["transactions"]
-    
+
+    # 1) Parse based on file type
+    if filename.endswith(".csv"):
+        try:
+            transactions = parse_csv_transactions(contents)
+            bank = "N/A"
+            parser_used = "pandas"
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Could not parse CSV: {str(e)}")
+    else:
+        try:
+            result = parse_transactions_from_pdf(contents, claude)
+            transactions = result["transactions"]
+            bank = result["bank"]
+            parser_used = result["parser_used"]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Could not parse PDF: {str(e)}")
+
     if not transactions:
         return {
             "filename": file.filename,
-            "bank": result["bank"],
+            "bank": bank,
+            "parser_used": parser_used,
             "rows": 0,
             "transactions": []
         }
-    # 2) Auto categorize
+
+    # 2) Auto-categorize transactions
     categorized = await categorize_transactions(transactions)
+
     return {
         "filename": file.filename,
-        "bank": result["bank"],
-        "parser_used": result["parser_used"],
+        "bank": bank,
+        "parser_used": parser_used,
         "rows": len(categorized["categorized_transactions"]),
         "transactions": categorized["categorized_transactions"]
     }
-    
-
