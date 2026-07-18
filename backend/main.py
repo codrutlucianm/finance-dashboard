@@ -7,6 +7,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pdf_parser import parse_transactions_from_pdf
 
 # Load environment variables from .env file
 load_dotenv()
@@ -79,13 +80,13 @@ async def categorize_transactions(transactions: list[dict]):
             {
                 "role": "user",
                 "content": f"""Categorize each of the following bank transactions into one of these categories:
-Food & Groceries, Transport, Entertainment, Utilities, Healthcare, Shopping, Income, Savings, Other.
+                            Food & Groceries, Transport, Entertainment, Utilities, Healthcare, Shopping, Income, Savings, Other.
 
-Transactions:
-{transactions_text}
+                            Transactions:
+                            {transactions_text}
 
-Respond ONLY with a JSON array, no explanation, no markdown. Example format:
-[{{"description": "Kaufland", "category": "Food & Groceries"}}]"""
+                            Respond ONLY with a JSON array, no explanation, no markdown. Example format:
+                            [{{"description": "Kaufland", "category": "Food & Groceries"}}]"""
             }
         ]
     )
@@ -102,3 +103,27 @@ Respond ONLY with a JSON array, no explanation, no markdown. Example format:
             transaction["category"] = categories[i].get("category", "Other")
 
     return {"categorized_transactions": transactions}
+
+# PDF upload endpoint: receives a PDF bank statement and returns parsed transactions
+@app.post("/upload-pdf")
+async def upload_pdf(file: UploadFile = File(...)):
+    # Validate that the uploaded file is a PDF
+    if not file.filename.endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are accepted")
+    
+    # Read the file content
+    contents = await file.read()
+    
+    # Parse transactions from PDF
+    try:
+        result = parse_transactions_from_pdf(contents, claude)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Could not parse PDF: {str(e)}")
+
+    return {
+        "filename": file.filename,
+        "bank": result["bank"],
+        "parser_used": result["parser_used"],
+        "rows": len(result["transactions"]),
+        "transactions": result["transactions"]
+    }
