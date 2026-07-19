@@ -57,8 +57,6 @@
     ></app-filters>
   </section>
 
-  <p style="color: red">Filtered: {{ filteredTransactions.length }}</p>
-
   <!-- Charts -->
   <section *ngIf="filteredTransactions.length > 0" class="section">
     <app-charts [transactions]="filteredTransactions"></app-charts>
