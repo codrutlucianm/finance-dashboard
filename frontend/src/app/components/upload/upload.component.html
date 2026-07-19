@@ -1,0 +1,42 @@
+<div class="upload-container">
+  <!-- Drop zone: supports drag & drop and click to select -->
+  <div
+    class="drop-zone"
+    [class.dragging]="isDragging"
+    [class.loading]="isLoading"
+    (dragover)="onDragOver($event)"
+    (dragleave)="onDragLeave()"
+    (drop)="onDrop($event)"
+    (click)="fileInput.click()"
+  >
+    <!-- Hidden file input -->
+    <input
+      #fileInput
+      type="file"
+      accept=".csv,.pdf"
+      style="display: none"
+      (change)="onFileSelected($event)"
+    />
+
+    <!-- Loading state -->
+    <div *ngIf="isLoading" class="upload-state">
+      <div class="spinner"></div>
+      <p>Analyzing your transactions...</p>
+    </div>
+
+    <!-- Default state -->
+    <div *ngIf="!isLoading" class="upload-state">
+      <div class="upload-icon">↑</div>
+      <p class="upload-title">Drop your bank statement here</p>
+      <p class="upload-subtitle">
+        <span class="info-icon">ⓘ</span> Supports PDF and CSV — BT, ING, Revolut
+        and more
+      </p>
+    </div>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+</div>
