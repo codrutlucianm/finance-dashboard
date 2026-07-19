@@ -1,0 +1,76 @@
+<div class="dashboard">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-left">
+      <h1 class="logo">Finance<span class="accent">AI</span></h1>
+      <p class="tagline">Smart transaction analysis</p>
+    </div>
+    <button class="theme-toggle" (click)="toggleTheme()">
+      {{ isDarkTheme ? "☀️" : "🌙" }}
+    </button>
+  </header>
+
+  <!-- Upload section -->
+  <section class="section">
+    <app-upload (uploadComplete)="onUploadComplete($event)"></app-upload>
+  </section>
+
+  <!-- Summary cards + filters (visible after upload) -->
+  <section *ngIf="uploadInfo" class="section">
+    <div class="upload-meta">
+      <span class="mono">{{ uploadInfo.filename }}</span>
+      <span class="badge">{{ uploadInfo.bank }}</span>
+      <span class="text-secondary">{{ uploadInfo.rows }} transactions</span>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card income">
+        <p class="stat-label">Total Income</p>
+        <p class="stat-value amount-positive mono">
+          +{{ totalIncome | number: "1.2-2" }} RON
+        </p>
+      </div>
+      <div class="stat-card expenses">
+        <p class="stat-label">Total Expenses</p>
+        <p class="stat-value amount-negative mono">
+          -{{ totalExpenses | number: "1.2-2" }} RON
+        </p>
+      </div>
+      <div class="stat-card balance">
+        <p class="stat-label">Net Balance</p>
+        <p
+          class="stat-value mono"
+          [class.amount-positive]="netBalance > 0"
+          [class.amount-negative]="netBalance < 0"
+        >
+          {{ netBalance > 0 ? "+" : "" }}{{ netBalance | number: "1.2-2" }} RON
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters (visible after upload) -->
+  <section *ngIf="transactions.length > 0" class="section filters-section">
+    <app-filters
+      [transactions]="transactions"
+      (filtersChanged)="onFiltersChanged($event)"
+    ></app-filters>
+  </section>
+
+  <p style="color: red">Filtered: {{ filteredTransactions.length }}</p>
+
+  <!-- Charts -->
+  <section *ngIf="filteredTransactions.length > 0" class="section">
+    <app-charts [transactions]="filteredTransactions"></app-charts>
+  </section>
+
+  <!-- Transaction table -->
+  <section *ngIf="filteredTransactions.length > 0" class="section">
+    <h2 class="section-title">Transactions</h2>
+    <div class="table-card">
+      <app-transaction-table
+        [transactions]="filteredTransactions"
+      ></app-transaction-table>
+    </div>
+  </section>
+</div>
