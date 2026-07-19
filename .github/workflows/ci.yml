@@ -55,5 +55,5 @@ jobs:
       - name: Install & build
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
           npm run build
