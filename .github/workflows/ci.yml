@@ -33,12 +33,13 @@ jobs:
           pip install ruff
           ruff check backend/
 
+      # Run pytest unit and integration tests
       - name: Run tests
         run: |
           cd backend
           pytest tests/ -v
 
-    # Job 2: check React frontend
+  # Job 2: check Angular frontend
   frontend:
     runs-on: ubuntu-latest
     steps:
