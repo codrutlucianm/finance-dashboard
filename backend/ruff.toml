@@ -1,0 +1,5 @@
+[lint]
+ignore = [
+    "BLE001",  # blind exception catch — acceptable in FastAPI error handlers
+    "B008",    # File(...) in defaults — standard FastAPI pattern
+]
