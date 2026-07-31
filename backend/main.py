@@ -5,7 +5,8 @@ import anthropic
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from pdf_parser import parse_transactions_from_pdf, parse_csv_transactions
+
+from pdf_parser import parse_csv_transactions, parse_transactions_from_pdf
 
 # Load environment variables from .env file
 load_dotenv()
@@ -95,7 +96,7 @@ async def smart_upload(file: UploadFile = File(...)):
             bank = "N/A"
             parser_used = "pandas"
         except Exception as e:
-            raise HTTPException(status_code=400, detail=f"Could not parse CSV: {str(e)}")
+            raise HTTPException(status_code=400, detail=f"Could not parse CSV: {e!s}")
     else:
         try:
             result = parse_transactions_from_pdf(contents, claude)
@@ -103,7 +104,7 @@ async def smart_upload(file: UploadFile = File(...)):
             bank = result["bank"]
             parser_used = result["parser_used"]
         except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Could not parse PDF: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Could not parse PDF: {e!s}")
 
     if not transactions:
         return {
