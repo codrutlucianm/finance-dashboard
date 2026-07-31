@@ -1,7 +1,15 @@
-import re
+import io
 import json
-import fitz  # PyMuPDF
+import re
 
+import fitz  # PyMuPDF
+import pandas as pd
+
+
+# Helper: parse CSV file into list of transactions
+def parse_csv_transactions(contents: bytes) -> list[dict]:
+    df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+    return df.to_dict(orient="records")
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
     """Extract raw text from all pages of a PDF file."""
@@ -85,8 +93,7 @@ def parse_with_claude(text: str, bank: str, claude_client) -> list[dict]:
         clean = raw.strip()
         if clean.startswith("```"):
             clean = clean.split("```")[1]
-            if clean.startswith("json"):
-                clean = clean[4:]
+            clean = clean.removeprefix("json")
         clean = clean.strip()
         return json.loads(clean)
     except Exception as e:

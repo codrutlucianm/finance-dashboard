@@ -1,0 +1,59 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+// Dark theme variables
+:root {
+  --bg-primary: #0f1117;
+  --bg-surface: #1a1d2e;
+  --bg-border: #2a2d3e;
+  --accent: #6c63ff;
+  --accent-hover: #8b85ff;
+  --income: #00d68f;
+  --expense: #ff4d6d;
+  --text-primary: #e8e9f0;
+  --text-secondary: #8b8fa8;
+  --font-main: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+// Light theme variables
+[data-theme="light"] {
+  --bg-primary: #f5f6fa;
+  --bg-surface: #ffffff;
+  --bg-border: #e2e4ed;
+  --accent: #6c63ff;
+  --accent-hover: #5a52e0;
+  --income: #00a86b;
+  --expense: #e0284a;
+  --text-primary: #1a1d2e;
+  --text-secondary: #5a5e75;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  min-height: 100vh;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.amount-positive {
+  color: var(--income);
+  font-family: var(--font-mono);
+}
+
+.amount-negative {
+  color: var(--expense);
+  font-family: var(--font-mono);
+}

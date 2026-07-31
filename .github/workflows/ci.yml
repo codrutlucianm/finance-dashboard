@@ -33,7 +33,13 @@ jobs:
           pip install ruff
           ruff check backend/
 
-    # Job 2: check React frontend
+      # Run pytest unit and integration tests
+      - name: Run tests
+        run: |
+          cd backend
+          pytest tests/ -v
+
+  # Job 2: check Angular frontend
   frontend:
     runs-on: ubuntu-latest
     steps:
@@ -50,5 +56,5 @@ jobs:
       - name: Install & build
         run: |
           cd frontend
-          npm install
+          npm install --legacy-peer-deps
           npm run build

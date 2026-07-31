@@ -1,0 +1,70 @@
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 24px;
+  width: 100%;
+}
+
+.chart-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--bg-border);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.chart-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 24px;
+}
+
+.chart-header .chart-title {
+  margin-bottom: 0;
+}
+
+// Aggregation toggle buttons
+.toggle-group {
+  display: flex;
+  gap: 4px;
+  background-color: var(--bg-primary);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.toggle-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--font-main);
+  cursor: pointer;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all 0.15s ease;
+
+  &:hover {
+    color: var(--text-primary);
+  }
+
+  &.active {
+    background-color: var(--bg-surface);
+    color: var(--accent);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Responsive: stack charts on smaller screens
+@media (max-width: 900px) {
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+}

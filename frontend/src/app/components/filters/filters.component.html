@@ -1,0 +1,54 @@
+<div class="filters-container">
+  <!-- Direction toggle: All / Income / Expenses -->
+  <div class="filter-group">
+    <label class="filter-label">Show</label>
+    <div class="toggle-group">
+      <button
+        *ngFor="let option of directionOptions"
+        class="toggle-btn"
+        [class.active]="selectedDirection === option"
+        (click)="setDirection(option)"
+      >
+        {{ option }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Category dropdown -->
+  <div class="filter-group">
+    <label class="filter-label">Categories</label>
+    <div class="dropdown">
+      <button class="dropdown-trigger" (click)="toggleDropdown()">
+        {{ dropdownLabel }}
+        <span class="dropdown-arrow" [class.open]="isDropdownOpen">▾</span>
+      </button>
+
+      <div class="dropdown-menu" *ngIf="isDropdownOpen">
+        <!-- Select all / Clear all -->
+        <div class="dropdown-actions">
+          <button (click)="selectAll()">All</button>
+          <button (click)="clearAll()">Clear</button>
+        </div>
+
+        <div class="dropdown-divider"></div>
+
+        <!-- Category checkboxes -->
+        <label
+          *ngFor="let category of availableCategories"
+          class="dropdown-item"
+        >
+          <input
+            type="checkbox"
+            [checked]="selectedCategories.includes(category)"
+            (change)="toggleCategory(category)"
+          />
+          <span
+            class="category-dot"
+            [style.background-color]="getCategoryColor(category)"
+          ></span>
+          {{ category }}
+        </label>
+      </div>
+    </div>
+  </div>
+</div>

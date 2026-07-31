@@ -1,0 +1,43 @@
+<div class="table-container">
+  <!-- Empty state -->
+  <div *ngIf="transactions.length === 0" class="empty-state">
+    <p>No transactions yet. Upload a bank statement to get started.</p>
+  </div>
+
+  <!-- Transactions table -->
+  <table *ngIf="transactions.length > 0">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Category</th>
+        <th class="text-right">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of transactions">
+        <td class="date mono">{{ t.date }}</td>
+        <td class="description">{{ t.description }}</td>
+        <td>
+          <span
+            class="category-badge"
+            [style.background-color]="
+              getCategoryColor(t.category || 'Other') + '22'
+            "
+            [style.color]="getCategoryColor(t.category || 'Other')"
+          >
+            {{ t.category || "Other" }}
+          </span>
+        </td>
+        <td
+          class="amount mono text-right"
+          [class.amount-positive]="t.amount > 0"
+          [class.amount-negative]="t.amount < 0"
+        >
+          {{ t.amount > 0 ? "+" : "" }}{{ t.amount | number: "1.2-2" }}
+          {{ t.currency }}
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
